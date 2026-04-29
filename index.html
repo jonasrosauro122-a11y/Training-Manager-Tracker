@@ -6,123 +6,270 @@
   <title>LAVA Training Manager Task Tracker</title>
   <style>
     :root{
-      --bg1:#020617;
-      --bg2:#0f172a;
-      --bg3:#111827;
-      --card:rgba(255,255,255,.08);
-      --card-strong:rgba(255,255,255,.12);
+      --bg1:#0a0000;
+      --bg2:#1a0000;
+      --bg3:#000000;
+      --panel:rgba(18,18,18,.70);
+      --panel-2:rgba(255,255,255,.06);
       --border:rgba(255,255,255,.12);
       --text:#f8fafc;
-      --muted:#94a3b8;
-      --cyan:#22d3ee;
-      --violet:#8b5cf6;
-      --pink:#ec4899;
-      --emerald:#10b981;
-      --amber:#f59e0b;
+      --muted:#cbd5e1;
+      --soft:#94a3b8;
       --red:#ef4444;
-      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --red-dark:#991b1b;
+      --red-deep:#450a0a;
+      --gold:#f59e0b;
+      --green:#10b981;
+      --blue:#38bdf8;
+      --violet:#8b5cf6;
+      --shadow:0 22px 60px rgba(0,0,0,.45);
       --radius:28px;
     }
 
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:var(--text);min-height:100%}
-    body{overflow-x:hidden}
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(135deg,#0a0000 0%,#160000 28%,#300000 60%,#000000 100%);
+      overflow-x:hidden;
+    }
 
     .orb{
-      position:fixed;border-radius:999px;filter:blur(55px);opacity:.35;pointer-events:none;z-index:0;
+      position:fixed;
+      border-radius:999px;
+      filter:blur(60px);
+      opacity:.30;
+      pointer-events:none;
+      z-index:0;
       animation:float 12s ease-in-out infinite;
     }
-    .orb.one{width:280px;height:280px;background:var(--cyan);top:-60px;left:-60px}
-    .orb.two{width:340px;height:340px;background:var(--violet);top:80px;right:-80px;animation-duration:15s}
-    .orb.three{width:280px;height:280px;background:var(--pink);bottom:-80px;left:30%;animation-duration:18s}
+    .orb.one{width:260px;height:260px;background:#ef4444;top:-60px;left:-50px}
+    .orb.two{width:340px;height:340px;background:#991b1b;top:80px;right:-80px;animation-duration:16s}
+    .orb.three{width:320px;height:320px;background:#450a0a;bottom:-100px;left:25%;animation-duration:18s}
+
     @keyframes float{
       0%,100%{transform:translate(0,0) scale(1)}
-      50%{transform:translate(25px,20px) scale(1.06)}
+      50%{transform:translate(26px,20px) scale(1.07)}
     }
 
-    .wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px}
+    .bg-sparkle{
+      position:fixed;
+      inset:0;
+      overflow:hidden;
+      pointer-events:none;
+      z-index:0;
+    }
+    .bg-sparkle span{
+      position:absolute;
+      display:block;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:rgba(255,255,255,.8);
+      box-shadow:0 0 12px rgba(255,255,255,.55),0 0 22px rgba(239,68,68,.32),0 0 30px rgba(56,189,248,.18);
+      animation:sparkleFloat linear infinite;
+      opacity:.28;
+    }
+    @keyframes sparkleFloat{
+      0%{transform:translateY(110vh) scale(.65);opacity:0}
+      10%{opacity:.4}
+      50%{opacity:.8}
+      100%{transform:translateY(-10vh) scale(1.2);opacity:0}
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width:1440px;
+      margin:0 auto;
+      padding:24px;
+    }
+
     .glass{
-      background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-      border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);
+      background:var(--panel);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
     }
 
-    .hero{padding:28px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+    .hero{
+      padding:28px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+      animation:fadeUp .45s ease both;
+    }
     .hero-left{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
-    .logo-card{width:88px;height:88px;border-radius:24px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,.18),rgba(139,92,246,.14));border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;flex-shrink:0}
+    .logo-card{
+      width:90px;
+      height:90px;
+      border-radius:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,rgba(239,68,68,.18),rgba(127,29,29,.14));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 10px 30px rgba(0,0,0,.22);
+      overflow:hidden;
+      flex-shrink:0;
+    }
     .logo-card img{width:100%;height:100%;object-fit:cover;display:block}
-    .logo-fallback{font-size:28px;font-weight:800;letter-spacing:1px;color:#e0f2fe}
+    .logo-fallback{font-size:26px;font-weight:800;letter-spacing:1px;color:#fee2e2}
     .hero-text{min-width:280px;flex:1}
+
     .pill{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
-      border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.12);color:#a5f3fc;font-size:12px;font-weight:600
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(239,68,68,.28);
+      background:rgba(239,68,68,.14);
+      color:#fecaca;
+      font-size:12px;
+      font-weight:700;
     }
     h1{margin:12px 0 8px;font-size:clamp(30px,5vw,54px);line-height:1.02}
     .sub{max-width:860px;color:var(--muted);line-height:1.7;font-size:15px}
 
     .btn{
-      border:none;border-radius:18px;padding:14px 20px;font-weight:700;cursor:pointer;transition:.25s ease;
-      display:inline-flex;align-items:center;gap:10px
+      border:none;
+      border-radius:18px;
+      padding:14px 20px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.25s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
     }
-    .btn-primary{background:linear-gradient(135deg,#22d3ee,#67e8f9);color:#082f49;box-shadow:0 12px 30px rgba(34,211,238,.25)}
-    .btn-primary:hover{transform:translateY(-2px) scale(1.01)}
+    .btn-primary{
+      background:linear-gradient(135deg,#ef4444,#f87171);
+      color:white;
+      box-shadow:0 12px 28px rgba(239,68,68,.22);
+    }
+    .btn-primary:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 18px 35px rgba(239,68,68,.28)}
     .btn-soft{background:rgba(255,255,255,.08);color:white;border:1px solid rgba(255,255,255,.1)}
     .btn-soft:hover{background:rgba(255,255,255,.12)}
     .btn-danger{background:rgba(239,68,68,.14);color:#fecaca;border:1px solid rgba(239,68,68,.22)}
     .btn-danger:hover{background:rgba(239,68,68,.22)}
 
     .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:20px}
-    .stat{padding:20px;position:relative;overflow:hidden}
+    .stat{padding:20px;position:relative;overflow:hidden;animation:fadeUp .48s ease both}
     .stat:hover{transform:translateY(-4px);transition:.25s ease}
+    .stat::after{
+      content:"";
+      position:absolute;
+      inset:auto -20% -40% auto;
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(239,68,68,.18),transparent 65%);
+      filter:blur(6px);
+      pointer-events:none;
+    }
     .stat .label{color:var(--muted);font-size:14px}
     .stat .value{font-size:38px;font-weight:800;margin-top:8px}
-    .stat .hint{font-size:12px;color:#cbd5e1;margin-top:10px}
+    .stat .hint{font-size:12px;color:#e2e8f0;margin-top:10px}
 
-    .filters{padding:16px;margin-bottom:20px}
-    .filters-grid{display:grid;grid-template-columns:1.2fr .7fr .9fr;gap:14px}
+    .filters{padding:16px;margin-bottom:20px;animation:fadeUp .52s ease both}
+    .filters-grid{display:grid;grid-template-columns:1.15fr .7fr .9fr;gap:14px}
     .input,.select,.textarea{
-      width:100%;background:rgba(255,255,255,.06);color:white;border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;padding:14px 16px;font-size:14px;outline:none;transition:.2s ease
+      width:100%;
+      background:rgba(15,23,42,.92);
+      color:white;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:14px;
+      outline:none;
+      transition:.2s ease;
     }
-    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,211,238,.45);box-shadow:0 0 0 4px rgba(34,211,238,.08)}
-    .textarea{min-height:100px;resize:vertical}
+    .select{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+      background:rgba(15,23,42,.92);
+      color:#f8fafc;
+    }
+    .select option{
+      background:#0f172a;
+      color:#f8fafc;
+    }
+    .input:focus,.select:focus,.textarea:focus{
+      border-color:rgba(239,68,68,.45);
+      box-shadow:0 0 0 4px rgba(239,68,68,.10);
+    }
+    .textarea{min-height:108px;resize:vertical}
     .search-wrap{position:relative}
-    .search-wrap .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+    .search-wrap .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--soft)}
     .search-wrap input{padding-left:42px}
 
     .board{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .column{padding:16px;min-height:340px}
+    .column{padding:16px;min-height:340px;animation:fadeUp .58s ease both}
     .column-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
     .column h2{margin:0;font-size:22px}
     .count{color:var(--muted);font-size:13px;margin-top:4px}
     .task-list{display:flex;flex-direction:column;gap:14px}
 
     .task{
-      background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.25);
+      background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:0 10px 25px rgba(0,0,0,.25);
       animation:popIn .28s ease both;
+      position:relative;
+      overflow:hidden;
     }
-    .task:hover{transform:translateY(-4px);transition:.22s ease}
+    .task::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(120deg,transparent,rgba(255,255,255,.04),transparent);
+      transform:translateX(-100%);
+      transition:transform .6s ease;
+      pointer-events:none;
+    }
+    .task:hover::before{transform:translateX(100%)}
+    .task:hover{transform:translateY(-4px) scale(1.005);transition:.22s ease}
+
     @keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
     .task-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
     .task-title{font-size:19px;font-weight:700;line-height:1.25}
-    .task-cat{font-size:13px;color:#a5f3fc;margin-top:6px}
+    .task-cat{font-size:13px;color:#fecaca;margin-top:6px}
     .task-actions{display:flex;gap:8px}
     .icon-btn{
-      width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);
-      color:white;cursor:pointer;transition:.2s ease
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.08);
+      color:white;
+      cursor:pointer;
+      transition:.2s ease;
     }
     .icon-btn:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
 
     .task-desc{margin:14px 0 0;color:#e2e8f0;font-size:14px;line-height:1.6}
-    .notes-box{margin-top:14px;padding:14px;border-radius:18px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08)}
+    .notes-box{margin-top:14px;padding:14px;border-radius:18px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08)}
     .notes-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#fde68a;margin-bottom:8px}
     .notes-text{color:#cbd5e1;font-size:14px;line-height:1.6;white-space:pre-wrap}
 
     .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
     .badge{padding:7px 11px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent}
     .status-todo{background:rgba(139,92,246,.16);color:#ddd6fe;border-color:rgba(139,92,246,.28)}
-    .status-progress{background:rgba(14,165,233,.16);color:#bae6fd;border-color:rgba(14,165,233,.28)}
+    .status-progress{background:rgba(56,189,248,.16);color:#bae6fd;border-color:rgba(56,189,248,.28)}
     .status-done{background:rgba(16,185,129,.16);color:#bbf7d0;border-color:rgba(16,185,129,.28)}
     .priority-low{background:rgba(148,163,184,.18);color:#e2e8f0;border-color:rgba(148,163,184,.28)}
     .priority-medium{background:rgba(245,158,11,.18);color:#fde68a;border-color:rgba(245,158,11,.28)}
@@ -134,24 +281,52 @@
     .threshold-line{margin-top:10px;color:#fecaca;font-size:13px;display:flex;align-items:center;gap:8px;font-weight:600}
     .threshold-ok{color:#fde68a}
     .threshold-good{color:#bfdbfe}
+
     .move-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-    .move-btn{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:white;cursor:pointer;font-size:13px}
-    .move-btn:hover{background:rgba(255,255,255,.11)}
+    .move-btn{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:white;cursor:pointer;font-size:13px;transition:.2s ease}
+    .move-btn:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
 
     .empty{padding:28px;border-radius:22px;border:1px dashed rgba(255,255,255,.12);background:rgba(255,255,255,.04);text-align:center;color:var(--muted)}
 
     .fab{
-      position:fixed;right:22px;bottom:22px;width:68px;height:68px;border-radius:999px;border:none;cursor:pointer;
-      background:linear-gradient(135deg,#22d3ee,#67e8f9);color:#082f49;font-size:34px;font-weight:700;
-      box-shadow:0 18px 40px rgba(34,211,238,.32);z-index:5;transition:.24s ease
+      position:fixed;
+      right:22px;
+      bottom:22px;
+      width:68px;
+      height:68px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(135deg,#ef4444,#f87171);
+      color:white;
+      font-size:34px;
+      font-weight:700;
+      box-shadow:0 18px 40px rgba(239,68,68,.32);
+      z-index:5;
+      transition:.24s ease;
     }
     .fab:hover{transform:scale(1.07) translateY(-2px)}
 
     .modal-backdrop{
-      position:fixed;inset:0;background:rgba(2,6,23,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:10;padding:20px
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.72);
+      backdrop-filter:blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:20;
+      padding:20px;
     }
     .modal-backdrop.show{display:flex}
-    .modal{width:min(920px,100%);padding:22px;border-radius:30px;transform:translateY(10px) scale(.98);opacity:0;transition:.22s ease}
+    .modal{
+      width:min(920px,100%);
+      padding:22px;
+      border-radius:30px;
+      transform:translateY(10px) scale(.98);
+      opacity:0;
+      transition:.22s ease;
+    }
     .modal-backdrop.show .modal{transform:translateY(0) scale(1);opacity:1}
     .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
     .modal h3{margin:0;font-size:28px}
@@ -162,16 +337,79 @@
     .label{display:block;margin:0 0 8px;color:#cbd5e1;font-size:14px}
     .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-wrap:wrap}
 
-    @media (max-width: 1150px){
-      .stats{grid-template-columns:repeat(2,1fr)}
+    .status-note{
+      margin-top:12px;
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.05);
+      color:#e2e8f0;
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    /* Custom colorful cursor */
+    @media (hover: hover) and (pointer: fine) {
+      body,button,a,input,textarea,select,.task,.btn,.icon-btn,.move-btn,.fab,.close {
+        cursor:none !important;
+      }
+    }
+    .cursor-dot,.cursor-ring,.cursor-trail{
+      position:fixed;
+      top:0;
+      left:0;
+      pointer-events:none;
+      z-index:99999;
+      transform:translate(-50%,-50%);
+    }
+    .cursor-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:white;
+      box-shadow:0 0 10px rgba(255,255,255,.9),0 0 20px rgba(255,0,100,.7),0 0 35px rgba(0,200,255,.7);
+    }
+    .cursor-ring{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(255,255,255,.15),rgba(255,0,128,.1),rgba(0,191,255,.08));
+      border:2px solid rgba(255,255,255,.25);
+      box-shadow:0 0 25px rgba(255,0,100,.35),0 0 40px rgba(0,191,255,.35),0 0 55px rgba(255,255,0,.2);
+      animation:cursorHue 4s linear infinite,cursorPulse 1.8s ease-in-out infinite;
+      transition:width .18s ease,height .18s ease,transform .12s ease,border .18s ease;
+    }
+    .cursor-ring.active{
+      width:58px;
+      height:58px;
+      border:2px solid rgba(255,255,255,.45);
+    }
+    .cursor-trail{
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,0,100,.7),rgba(0,191,255,.1));
+      opacity:.8;
+      animation:trailFade .8s linear forwards,cursorHue 3s linear infinite;
+      filter:blur(1px);
+    }
+    @keyframes cursorHue{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+    @keyframes cursorPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+    @keyframes trailFade{0%{opacity:.9;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.2)}}
+
+    @media (max-width: 1200px){
+      .stats{grid-template-columns:repeat(3,1fr)}
       .board{grid-template-columns:1fr}
     }
-    @media (max-width: 760px){
+    @media (max-width: 820px){
       .filters-grid,.form-grid{grid-template-columns:1fr}
-      .stats{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr 1fr}
       .hero{padding:22px}
       .wrap{padding:14px}
       .task-top{flex-direction:column}
+    }
+    @media (max-width: 560px){
+      .stats{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -179,6 +417,7 @@
   <div class="orb one"></div>
   <div class="orb two"></div>
   <div class="orb three"></div>
+  <div class="bg-sparkle" id="bgSparkle"></div>
 
   <div class="wrap">
     <section class="hero glass">
@@ -192,8 +431,8 @@
           <h1>LAVA Training Manager Task Tracker</h1>
           <div class="sub">
             Add, edit, delete, manage, and organize your Training Manager responsibilities in one live workspace.
-            This version includes a dedicated <strong>Notes</strong> section for each task so you can save follow-ups,
-            coaching notes, reminders, and client details.
+            This version includes notes, a 24-hour threshold tracker, Supabase-ready saving, a red-black gradient theme,
+            and a colorful animated cursor effect for desktop.
           </div>
         </div>
       </div>
@@ -204,8 +443,8 @@
       <div class="stat glass"><div class="label">Total Tasks</div><div class="value" id="statTotal">0</div><div class="hint">All created tasks</div></div>
       <div class="stat glass"><div class="label">In Progress</div><div class="value" id="statProgress">0</div><div class="hint">Active work items</div></div>
       <div class="stat glass"><div class="label">Completed</div><div class="value" id="statDone">0</div><div class="hint">Finished tasks</div></div>
-      <div class="stat glass"><div class="label">Overdue</div><div class="value" id="statOverdue">0</div><div class="hint">Needs immediate attention</div></div>
-      <div class="stat glass"><div class="label">24h Threshold</div><div class="value" id="statThreshold">0</div><div class="hint">Tasks that passed 24 hours</div></div>
+      <div class="stat glass"><div class="label">Overdue</div><div class="value" id="statOverdue">0</div><div class="hint">Past due date</div></div>
+      <div class="stat glass"><div class="label">24h Threshold</div><div class="value" id="statThreshold">0</div><div class="hint">Tasks past 24 hours</div></div>
     </section>
 
     <section class="filters glass">
@@ -217,6 +456,7 @@
         <select class="select" id="statusFilter"></select>
         <select class="select" id="categoryFilter"></select>
       </div>
+      <div class="status-note" id="saveModeNote">Saving mode: Local browser storage</div>
     </section>
 
     <section class="board">
@@ -311,13 +551,16 @@
     </div>
   </div>
 
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const STORAGE_KEY = 'lava_training_manager_task_tracker_html_v2';
+    const STORAGE_KEY = 'lava_training_manager_task_tracker_html_v3';
 
-    // Supabase configuration
-const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
+    // Replace these values to enable Supabase saving
+    const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imphb256YXdtZndyaWtpZWJobHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NzU0NjQsImV4cCI6MjA5MzA1MTQ2NH0.D5XZkNNGaJ_gLHQt5VmzZ8waFKdI29lL-yu3UGRgHz4';
     const TABLE_NAME = 'training_manager_tasks';
 
@@ -397,6 +640,7 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
       searchInput: document.getElementById('searchInput'),
       statusFilter: document.getElementById('statusFilter'),
       categoryFilter: document.getElementById('categoryFilter'),
+      saveModeNote: document.getElementById('saveModeNote'),
       modalBackdrop: document.getElementById('modalBackdrop'),
       modalTitle: document.getElementById('modalTitle'),
       taskTitle: document.getElementById('taskTitle'),
@@ -412,6 +656,10 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
       cancelBtn: document.getElementById('cancelBtn'),
       saveBtn: document.getElementById('saveBtn')
     };
+
+    function showStatusNote(message){
+      els.saveModeNote.textContent = message;
+    }
 
     function localLoadTasks(){
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -467,22 +715,26 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
 
     async function loadTasks(){
       if(!SUPABASE_ENABLED){
+        showStatusNote('Saving mode: Local browser storage');
         localLoadTasks();
         return;
       }
 
-      const { data, error } = await supabase
-        .from(TABLE_NAME)
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from(TABLE_NAME)
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if(error){
-        console.error('Supabase load failed, using local storage instead:', error);
+        if(error) throw error;
+
+        tasks = (data || []).map(dbToUi);
+        showStatusNote('Saving mode: Supabase database');
+      } catch(error) {
+        console.error('Supabase load failed:', error);
+        showStatusNote(`Supabase failed, using local storage instead: ${error.message || 'Unknown error'}`);
         localLoadTasks();
-        return;
       }
-
-      tasks = (data || []).map(dbToUi);
     }
 
     async function persistNewTask(task){
@@ -537,10 +789,10 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
 
     async function persistMoveTask(id, status){
       const current = tasks.find(t => t.id === id);
-      if(!current) return;
-      const updated = { ...current, status };
+      if(!current) return current;
 
       if(!SUPABASE_ENABLED){
+        const updated = { ...current, status };
         tasks = tasks.map(t => t.id === id ? updated : t);
         localSaveTasks();
         return updated;
@@ -584,11 +836,11 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
     }
 
     function esc(str=''){
-      return str
+      return String(str)
         .replace(/&/g,'&amp;')
         .replace(/</g,'&lt;')
         .replace(/>/g,'&gt;')
-        .replace(/\"/g,'&quot;')
+        .replace(/"/g,'&quot;')
         .replace(/'/g,'&#039;');
     }
 
@@ -753,36 +1005,36 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
       els.taskStatus.value = task.status || 'To Do';
       els.taskDueDate.value = task.dueDate || '';
       openModal(true);
-    }
+    };
 
     window.deleteTask = async function(id){
-      try{
+      try {
         await persistDeleteTask(id);
         tasks = tasks.filter(t => t.id !== id);
         if(!SUPABASE_ENABLED) localSaveTasks();
         render();
-      } catch(error){
+      } catch(error) {
         console.error(error);
         alert(`Delete failed: ${error.message || 'Unknown error'}${error.details ? `
 Details: ${error.details}` : ''}${error.hint ? `
 Hint: ${error.hint}` : ''}`);
       }
-    }
+    };
 
     window.moveTask = async function(id, status){
-      try{
+      try {
         const updated = await persistMoveTask(id, status);
         if(updated){
           tasks = tasks.map(t => t.id === id ? ensureTaskMeta(updated) : t);
         }
         render();
-      } catch(error){
+      } catch(error) {
         console.error(error);
         alert(`Status update failed: ${error.message || 'Unknown error'}${error.details ? `
 Details: ${error.details}` : ''}${error.hint ? `
 Hint: ${error.hint}` : ''}`);
       }
-    }
+    };
 
     async function saveCurrentTask(){
       const title = els.taskTitle.value.trim();
@@ -801,7 +1053,7 @@ Hint: ${error.hint}` : ''}`);
         dueDate: els.taskDueDate.value
       };
 
-      try{
+      try {
         if(editingId){
           const current = tasks.find(t => t.id === editingId);
           const updatedTask = ensureTaskMeta({
@@ -810,6 +1062,7 @@ Hint: ${error.hint}` : ''}`);
             id: editingId,
             createdAt: current?.createdAt || new Date().toISOString()
           });
+
           const savedTask = await persistUpdatedTask(updatedTask);
           tasks = tasks.map(t => t.id === editingId ? ensureTaskMeta(savedTask) : t);
         } else {
@@ -818,6 +1071,7 @@ Hint: ${error.hint}` : ''}`);
             ...payload,
             createdAt: new Date().toISOString()
           });
+
           const savedTask = await persistNewTask(newTask);
           if(SUPABASE_ENABLED){
             tasks.unshift(ensureTaskMeta(savedTask));
@@ -828,7 +1082,7 @@ Hint: ${error.hint}` : ''}`);
         render();
         closeModal();
         clearForm();
-      } catch(error){
+      } catch(error) {
         console.error(error);
         alert(`Save failed: ${error.message || 'Unknown error'}${error.details ? `
 Details: ${error.details}` : ''}${error.hint ? `
@@ -856,10 +1110,82 @@ Hint: ${error.hint}` : ''}`);
       });
     }
 
+    function initBackgroundSparkles(){
+      const container = document.getElementById('bgSparkle');
+      if(!container) return;
+
+      for(let i = 0; i < 24; i++){
+        const s = document.createElement('span');
+        s.style.left = Math.random() * 100 + 'vw';
+        s.style.animationDuration = (8 + Math.random() * 10) + 's';
+        s.style.animationDelay = (Math.random() * 8) + 's';
+        s.style.width = (4 + Math.random() * 6) + 'px';
+        s.style.height = s.style.width;
+        container.appendChild(s);
+      }
+    }
+
+    function initCustomCursor(){
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if(!finePointer) return;
+
+      const cursorDot = document.getElementById('cursorDot');
+      const cursorRing = document.getElementById('cursorRing');
+      if(!cursorDot || !cursorRing) return;
+
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+      let ringX = mouseX;
+      let ringY = mouseY;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursorDot.style.left = mouseX + 'px';
+        cursorDot.style.top = mouseY + 'px';
+        createTrail(mouseX, mouseY);
+      });
+
+      function animateRing(){
+        ringX += (mouseX - ringX) * 0.18;
+        ringY += (mouseY - ringY) * 0.18;
+        cursorRing.style.left = ringX + 'px';
+        cursorRing.style.top = ringY + 'px';
+        requestAnimationFrame(animateRing);
+      }
+      animateRing();
+
+      function bindHoverTargets(){
+        const hoverTargets = document.querySelectorAll('button, a, input, textarea, select, .task, .btn, .icon-btn, .move-btn, .fab, .close');
+        hoverTargets.forEach((el) => {
+          el.addEventListener('mouseenter', () => cursorRing.classList.add('active'));
+          el.addEventListener('mouseleave', () => cursorRing.classList.remove('active'));
+        });
+      }
+      bindHoverTargets();
+
+      const observer = new MutationObserver(() => bindHoverTargets());
+      observer.observe(document.body, { childList:true, subtree:true });
+
+      document.addEventListener('mousedown', () => cursorRing.classList.add('active'));
+      document.addEventListener('mouseup', () => cursorRing.classList.remove('active'));
+
+      function createTrail(x, y){
+        const trail = document.createElement('div');
+        trail.className = 'cursor-trail';
+        trail.style.left = x + 'px';
+        trail.style.top = y + 'px';
+        document.body.appendChild(trail);
+        setTimeout(() => trail.remove(), 800);
+      }
+    }
+
     await loadTasks();
     tasks = tasks.map(ensureTaskMeta);
     setup();
     render();
+    initBackgroundSparkles();
+    initCustomCursor();
     setInterval(render, 60000);
   </script>
 </body>
