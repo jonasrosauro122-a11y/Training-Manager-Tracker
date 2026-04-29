@@ -763,7 +763,9 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
         render();
       } catch(error){
         console.error(error);
-        alert('Delete failed. Please check your Supabase setup.');
+        alert(`Delete failed: ${error.message || 'Unknown error'}${error.details ? `
+Details: ${error.details}` : ''}${error.hint ? `
+Hint: ${error.hint}` : ''}`);
       }
     }
 
@@ -776,7 +778,9 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
         render();
       } catch(error){
         console.error(error);
-        alert('Status update failed. Please check your Supabase setup.');
+        alert(`Status update failed: ${error.message || 'Unknown error'}${error.details ? `
+Details: ${error.details}` : ''}${error.hint ? `
+Hint: ${error.hint}` : ''}`);
       }
     }
 
@@ -826,7 +830,9 @@ const SUPABASE_URL = 'https://jaonzawmfwrikiebhlxa.supabase.co';
         clearForm();
       } catch(error){
         console.error(error);
-        alert('Save failed. Please check your Supabase URL, anon key, table name, and policies.');
+        alert(`Save failed: ${error.message || 'Unknown error'}${error.details ? `
+Details: ${error.details}` : ''}${error.hint ? `
+Hint: ${error.hint}` : ''}`);
       }
     }
 
