@@ -311,8 +311,26 @@
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = 'lava_training_manager_task_tracker_html_v1';
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const STORAGE_KEY = 'lava_training_manager_task_tracker_html_v2';
+
+    // ==============================
+   ([supabase.com](https://supabase.com/docs/reference/javascript/initializing))============================
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const TABLE_NAME = 'training_manager_tasks';
+
+    const SUPABASE_ENABLED =
+      SUPABASE_URL &&
+      SUPABASE_ANON_KEY &&
+      SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+      SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+
+    const supabase = SUPABASE_ENABLED
+      ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
     const categories = [
       'Training Operations & Curriculum',
@@ -396,30 +414,154 @@
       saveBtn: document.getElementById('saveBtn')
     };
 
-    function loadTasks(){
+    function localLoadTasks(){
       const saved = localStorage.getItem(STORAGE_KEY);
       if(saved){
-        try{ tasks = JSON.parse(saved) || []; } catch(e){ tasks = []; }
+        try { tasks = JSON.parse(saved) || []; }
+        catch(e){ tasks = []; }
       }
       if(!Array.isArray(tasks) || !tasks.length){
-        tasks = starterTasks;
-        saveTasks();
+        tasks = starterTasks.map(ensureTaskMeta);
+        localSaveTasks();
       }
     }
 
-    function saveTasks(){
+    function localSaveTasks(){
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function ensureTaskMeta(task){
+      return {
+        ...task,
+        createdAt: task.createdAt || task.created_at || new Date().toISOString(),
+        dueDate: task.dueDate || task.due_date || ''
+      };
+    }
+
+    function dbToUi(row){
+      return ensureTaskMeta({
+        id: String(row.id),
+        title: row.title || '',
+        description: row.description || '',
+        notes: row.notes || '',
+        category: row.category || categories[0],
+        status: row.status || 'To Do',
+        priority: row.priority || 'Medium',
+        dueDate: row.due_date || '',
+        createdAt: row.created_at || new Date().toISOString()
+      });
+    }
+
+    function uiToDb(task){
+      return {
+        id: String(task.id),
+        title: task.title,
+        description: task.description || '',
+        notes: task.notes || '',
+        category: task.category,
+        status: task.status,
+        priority: task.priority,
+        due_date: task.dueDate || null,
+        created_at: task.createdAt || new Date().toISOString()
+      };
+    }
+
+    async function loadTasks(){
+      if(!SUPABASE_ENABLED){
+        localLoadTasks();
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from(TABLE_NAME)
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if(error){
+        console.error('Supabase load failed, using local storage instead:', error);
+        localLoadTasks();
+        return;
+      }
+
+      tasks = (data || []).map(dbToUi);
+    }
+
+    async function persistNewTask(task){
+      if(!SUPABASE_ENABLED){
+        tasks.unshift(task);
+        localSaveTasks();
+        return task;
+      }
+
+      const { data, error } = await supabase
+        .from(TABLE_NAME)
+        .insert(uiToDb(task))
+        .select()
+        .single();
+
+      if(error) throw error;
+      return dbToUi(data);
+    }
+
+    async function persistUpdatedTask(task){
+      if(!SUPABASE_ENABLED){
+        tasks = tasks.map(t => t.id === task.id ? task : t);
+        localSaveTasks();
+        return task;
+      }
+
+      const { data, error } = await supabase
+        .from(TABLE_NAME)
+        .update(uiToDb(task))
+        .eq('id', String(task.id))
+        .select()
+        .single();
+
+      if(error) throw error;
+      return dbToUi(data);
+    }
+
+    async function persistDeleteTask(id){
+      if(!SUPABASE_ENABLED){
+        tasks = tasks.filter(t => t.id !== id);
+        localSaveTasks();
+        return;
+      }
+
+      const { error } = await supabase
+        .from(TABLE_NAME)
+        .delete()
+        .eq('id', String(id));
+
+      if(error) throw error;
+    }
+
+    async function persistMoveTask(id, status){
+      const current = tasks.find(t => t.id === id);
+      if(!current) return;
+      const updated = { ...current, status };
+
+      if(!SUPABASE_ENABLED){
+        tasks = tasks.map(t => t.id === id ? updated : t);
+        localSaveTasks();
+        return updated;
+      }
+
+      const { data, error } = await supabase
+        .from(TABLE_NAME)
+        .update({ status })
+        .eq('id', String(id))
+        .select()
+        .single();
+
+      if(error) throw error;
+      return dbToUi(data);
     }
 
     function isOverdue(task){
       if(!task.dueDate || task.status === 'Done') return false;
       const due = new Date(task.dueDate + 'T23:59:59');
       return due < new Date();
-    }
-
-    function ensureTaskMeta(task){
-      if(!task.createdAt) task.createdAt = new Date().toISOString();
-      return task;
     }
 
     function thresholdDeadline(task){
@@ -447,7 +589,7 @@
         .replace(/&/g,'&amp;')
         .replace(/</g,'&lt;')
         .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
+        .replace(/\"/g,'&quot;')
         .replace(/'/g,'&#039;');
     }
 
@@ -614,19 +756,32 @@
       openModal(true);
     }
 
-    window.deleteTask = function(id){
-      tasks = tasks.filter(t => t.id !== id);
-      saveTasks();
-      render();
+    window.deleteTask = async function(id){
+      try{
+        await persistDeleteTask(id);
+        tasks = tasks.filter(t => t.id !== id);
+        if(!SUPABASE_ENABLED) localSaveTasks();
+        render();
+      } catch(error){
+        console.error(error);
+        alert('Delete failed. Please check your Supabase setup.');
+      }
     }
 
-    window.moveTask = function(id, status){
-      tasks = tasks.map(t => t.id === id ? {...t, status} : t);
-      saveTasks();
-      render();
+    window.moveTask = async function(id, status){
+      try{
+        const updated = await persistMoveTask(id, status);
+        if(updated){
+          tasks = tasks.map(t => t.id === id ? ensureTaskMeta(updated) : t);
+        }
+        render();
+      } catch(error){
+        console.error(error);
+        alert('Status update failed. Please check your Supabase setup.');
+      }
     }
 
-    function saveCurrentTask(){
+    async function saveCurrentTask(){
       const title = els.taskTitle.value.trim();
       if(!title){
         alert('Please enter a task title.');
@@ -643,16 +798,37 @@
         dueDate: els.taskDueDate.value
       };
 
-      if(editingId){
-        tasks = tasks.map(t => t.id === editingId ? {...t, ...payload} : t);
-      } else {
-        tasks.unshift({ id: String(Date.now()), ...payload, createdAt: new Date().toISOString() });
-      }
+      try{
+        if(editingId){
+          const current = tasks.find(t => t.id === editingId);
+          const updatedTask = ensureTaskMeta({
+            ...current,
+            ...payload,
+            id: editingId,
+            createdAt: current?.createdAt || new Date().toISOString()
+          });
+          const savedTask = await persistUpdatedTask(updatedTask);
+          tasks = tasks.map(t => t.id === editingId ? ensureTaskMeta(savedTask) : t);
+        } else {
+          const newTask = ensureTaskMeta({
+            id: String(Date.now()),
+            ...payload,
+            createdAt: new Date().toISOString()
+          });
+          const savedTask = await persistNewTask(newTask);
+          if(SUPABASE_ENABLED){
+            tasks.unshift(ensureTaskMeta(savedTask));
+          }
+        }
 
-      saveTasks();
-      render();
-      closeModal();
-      clearForm();
+        if(!SUPABASE_ENABLED) localSaveTasks();
+        render();
+        closeModal();
+        clearForm();
+      } catch(error){
+        console.error(error);
+        alert('Save failed. Please check your Supabase URL, anon key, table name, and policies.');
+      }
     }
 
     function setup(){
@@ -675,9 +851,8 @@
       });
     }
 
-    loadTasks();
+    await loadTasks();
     tasks = tasks.map(ensureTaskMeta);
-    saveTasks();
     setup();
     render();
     setInterval(render, 60000);
