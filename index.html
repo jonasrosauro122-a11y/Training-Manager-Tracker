@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAVA Training Manager Task Tracker</title>
+  <style>
+    :root{
+      --bg1:#020617;
+      --bg2:#0f172a;
+      --bg3:#111827;
+      --card:rgba(255,255,255,.08);
+      --card-strong:rgba(255,255,255,.12);
+      --border:rgba(255,255,255,.12);
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --cyan:#22d3ee;
+      --violet:#8b5cf6;
+      --pink:#ec4899;
+      --emerald:#10b981;
+      --amber:#f59e0b;
+      --red:#ef4444;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:28px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:var(--text);min-height:100%}
+    body{overflow-x:hidden}
+
+    .orb{
+      position:fixed;border-radius:999px;filter:blur(55px);opacity:.35;pointer-events:none;z-index:0;
+      animation:float 12s ease-in-out infinite;
+    }
+    .orb.one{width:280px;height:280px;background:var(--cyan);top:-60px;left:-60px}
+    .orb.two{width:340px;height:340px;background:var(--violet);top:80px;right:-80px;animation-duration:15s}
+    .orb.three{width:280px;height:280px;background:var(--pink);bottom:-80px;left:30%;animation-duration:18s}
+    @keyframes float{
+      0%,100%{transform:translate(0,0) scale(1)}
+      50%{transform:translate(25px,20px) scale(1.06)}
+    }
+
+    .wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px}
+    .glass{
+      background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);
+    }
+
+    .hero{padding:28px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+    .hero-left{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
+    .logo-card{width:88px;height:88px;border-radius:24px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,.18),rgba(139,92,246,.14));border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;flex-shrink:0}
+    .logo-card img{width:100%;height:100%;object-fit:cover;display:block}
+    .logo-fallback{font-size:28px;font-weight:800;letter-spacing:1px;color:#e0f2fe}
+    .hero-text{min-width:280px;flex:1}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.12);color:#a5f3fc;font-size:12px;font-weight:600
+    }
+    h1{margin:12px 0 8px;font-size:clamp(30px,5vw,54px);line-height:1.02}
+    .sub{max-width:860px;color:var(--muted);line-height:1.7;font-size:15px}
+
+    .btn{
+      border:none;border-radius:18px;padding:14px 20px;font-weight:700;cursor:pointer;transition:.25s ease;
+      display:inline-flex;align-items:center;gap:10px
+    }
+    .btn-primary{background:linear-gradient(135deg,#22d3ee,#67e8f9);color:#082f49;box-shadow:0 12px 30px rgba(34,211,238,.25)}
+    .btn-primary:hover{transform:translateY(-2px) scale(1.01)}
+    .btn-soft{background:rgba(255,255,255,.08);color:white;border:1px solid rgba(255,255,255,.1)}
+    .btn-soft:hover{background:rgba(255,255,255,.12)}
+    .btn-danger{background:rgba(239,68,68,.14);color:#fecaca;border:1px solid rgba(239,68,68,.22)}
+    .btn-danger:hover{background:rgba(239,68,68,.22)}
+
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:20px}
+    .stat{padding:20px;position:relative;overflow:hidden}
+    .stat:hover{transform:translateY(-4px);transition:.25s ease}
+    .stat .label{color:var(--muted);font-size:14px}
+    .stat .value{font-size:38px;font-weight:800;margin-top:8px}
+    .stat .hint{font-size:12px;color:#cbd5e1;margin-top:10px}
+
+    .filters{padding:16px;margin-bottom:20px}
+    .filters-grid{display:grid;grid-template-columns:1.2fr .7fr .9fr;gap:14px}
+    .input,.select,.textarea{
+      width:100%;background:rgba(255,255,255,.06);color:white;border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;padding:14px 16px;font-size:14px;outline:none;transition:.2s ease
+    }
+    .input:focus,.select:focus,.textarea:focus{border-color:rgba(34,211,238,.45);box-shadow:0 0 0 4px rgba(34,211,238,.08)}
+    .textarea{min-height:100px;resize:vertical}
+    .search-wrap{position:relative}
+    .search-wrap .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+    .search-wrap input{padding-left:42px}
+
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .column{padding:16px;min-height:340px}
+    .column-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .column h2{margin:0;font-size:22px}
+    .count{color:var(--muted);font-size:13px;margin-top:4px}
+    .task-list{display:flex;flex-direction:column;gap:14px}
+
+    .task{
+      background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.25);
+      animation:popIn .28s ease both;
+    }
+    .task:hover{transform:translateY(-4px);transition:.22s ease}
+    @keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+    .task-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .task-title{font-size:19px;font-weight:700;line-height:1.25}
+    .task-cat{font-size:13px;color:#a5f3fc;margin-top:6px}
+    .task-actions{display:flex;gap:8px}
+    .icon-btn{
+      width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);
+      color:white;cursor:pointer;transition:.2s ease
+    }
+    .icon-btn:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
+
+    .task-desc{margin:14px 0 0;color:#e2e8f0;font-size:14px;line-height:1.6}
+    .notes-box{margin-top:14px;padding:14px;border-radius:18px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08)}
+    .notes-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#fde68a;margin-bottom:8px}
+    .notes-text{color:#cbd5e1;font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .badge{padding:7px 11px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent}
+    .status-todo{background:rgba(139,92,246,.16);color:#ddd6fe;border-color:rgba(139,92,246,.28)}
+    .status-progress{background:rgba(14,165,233,.16);color:#bae6fd;border-color:rgba(14,165,233,.28)}
+    .status-done{background:rgba(16,185,129,.16);color:#bbf7d0;border-color:rgba(16,185,129,.28)}
+    .priority-low{background:rgba(148,163,184,.18);color:#e2e8f0;border-color:rgba(148,163,184,.28)}
+    .priority-medium{background:rgba(245,158,11,.18);color:#fde68a;border-color:rgba(245,158,11,.28)}
+    .priority-high{background:rgba(249,115,22,.18);color:#fed7aa;border-color:rgba(249,115,22,.28)}
+    .priority-critical{background:rgba(239,68,68,.18);color:#fecaca;border-color:rgba(239,68,68,.28)}
+    .overdue{background:rgba(239,68,68,.18);color:#fecaca;border-color:rgba(239,68,68,.28)}
+
+    .due{margin-top:14px;color:#cbd5e1;font-size:13px;display:flex;align-items:center;gap:8px}
+    .threshold-line{margin-top:10px;color:#fecaca;font-size:13px;display:flex;align-items:center;gap:8px;font-weight:600}
+    .threshold-ok{color:#fde68a}
+    .threshold-good{color:#bfdbfe}
+    .move-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .move-btn{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:white;cursor:pointer;font-size:13px}
+    .move-btn:hover{background:rgba(255,255,255,.11)}
+
+    .empty{padding:28px;border-radius:22px;border:1px dashed rgba(255,255,255,.12);background:rgba(255,255,255,.04);text-align:center;color:var(--muted)}
+
+    .fab{
+      position:fixed;right:22px;bottom:22px;width:68px;height:68px;border-radius:999px;border:none;cursor:pointer;
+      background:linear-gradient(135deg,#22d3ee,#67e8f9);color:#082f49;font-size:34px;font-weight:700;
+      box-shadow:0 18px 40px rgba(34,211,238,.32);z-index:5;transition:.24s ease
+    }
+    .fab:hover{transform:scale(1.07) translateY(-2px)}
+
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(2,6,23,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:10;padding:20px
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{width:min(920px,100%);padding:22px;border-radius:30px;transform:translateY(10px) scale(.98);opacity:0;transition:.22s ease}
+    .modal-backdrop.show .modal{transform:translateY(0) scale(1);opacity:1}
+    .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
+    .modal h3{margin:0;font-size:28px}
+    .modal p{margin:8px 0 0;color:var(--muted);font-size:14px}
+    .close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:white;border-radius:14px;width:42px;height:42px;cursor:pointer}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .full{grid-column:1/-1}
+    .label{display:block;margin:0 0 8px;color:#cbd5e1;font-size:14px}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-wrap:wrap}
+
+    @media (max-width: 1150px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .board{grid-template-columns:1fr}
+    }
+    @media (max-width: 760px){
+      .filters-grid,.form-grid{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr}
+      .hero{padding:22px}
+      .wrap{padding:14px}
+      .task-top{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
+
+  <div class="wrap">
+    <section class="hero glass">
+      <div class="hero-left">
+        <div class="logo-card" title="Company Logo">
+          <img src="logo.png" alt="Company Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="logo-fallback" style="display:none;">LAVA</div>
+        </div>
+        <div class="hero-text">
+          <div class="pill">✨ Modern Animated Task Tasker</div>
+          <h1>LAVA Training Manager Task Tracker</h1>
+          <div class="sub">
+            Add, edit, delete, manage, and organize your Training Manager responsibilities in one live workspace.
+            This version includes a dedicated <strong>Notes</strong> section for each task so you can save follow-ups,
+            coaching notes, reminders, and client details.
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="addTaskTop">＋ Add Task</button>
+    </section>
+
+    <section class="stats">
+      <div class="stat glass"><div class="label">Total Tasks</div><div class="value" id="statTotal">0</div><div class="hint">All created tasks</div></div>
+      <div class="stat glass"><div class="label">In Progress</div><div class="value" id="statProgress">0</div><div class="hint">Active work items</div></div>
+      <div class="stat glass"><div class="label">Completed</div><div class="value" id="statDone">0</div><div class="hint">Finished tasks</div></div>
+      <div class="stat glass"><div class="label">Overdue</div><div class="value" id="statOverdue">0</div><div class="hint">Needs immediate attention</div></div>
+      <div class="stat glass"><div class="label">24h Threshold</div><div class="value" id="statThreshold">0</div><div class="hint">Tasks that passed 24 hours</div></div>
+    </section>
+
+    <section class="filters glass">
+      <div class="filters-grid">
+        <div class="search-wrap">
+          <span class="icon">🔎</span>
+          <input class="input" id="searchInput" placeholder="Search task, description, notes, or category" />
+        </div>
+        <select class="select" id="statusFilter"></select>
+        <select class="select" id="categoryFilter"></select>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="column glass">
+        <div class="column-head">
+          <div>
+            <h2>To Do</h2>
+            <div class="count" id="countTodo">0 tasks</div>
+          </div>
+          <span class="badge status-todo">To Do</span>
+        </div>
+        <div class="task-list" id="todoList"></div>
+      </div>
+
+      <div class="column glass">
+        <div class="column-head">
+          <div>
+            <h2>In Progress</h2>
+            <div class="count" id="countProgress">0 tasks</div>
+          </div>
+          <span class="badge status-progress">In Progress</span>
+        </div>
+        <div class="task-list" id="progressList"></div>
+      </div>
+
+      <div class="column glass">
+        <div class="column-head">
+          <div>
+            <h2>Done</h2>
+            <div class="count" id="countDone">0 tasks</div>
+          </div>
+          <span class="badge status-done">Done</span>
+        </div>
+        <div class="task-list" id="doneList"></div>
+      </div>
+    </section>
+  </div>
+
+  <button class="fab" id="fab">+</button>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal glass">
+      <div class="modal-head">
+        <div>
+          <h3 id="modalTitle">Add Task</h3>
+          <p>Create or update your Training Manager task with notes.</p>
+        </div>
+        <button class="close" id="closeModal">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="full">
+          <label class="label">Task Title</label>
+          <input class="input" id="taskTitle" placeholder="Enter task title" />
+        </div>
+
+        <div class="full">
+          <label class="label">Description</label>
+          <textarea class="textarea" id="taskDescription" placeholder="Add the main task description"></textarea>
+        </div>
+
+        <div class="full">
+          <label class="label">Notes</label>
+          <textarea class="textarea" id="taskNotes" placeholder="Add coaching notes, reminders, follow-ups, or client notes"></textarea>
+        </div>
+
+        <div>
+          <label class="label">Category</label>
+          <select class="select" id="taskCategory"></select>
+        </div>
+
+        <div>
+          <label class="label">Priority</label>
+          <select class="select" id="taskPriority"></select>
+        </div>
+
+        <div>
+          <label class="label">Status</label>
+          <select class="select" id="taskStatus"></select>
+        </div>
+
+        <div>
+          <label class="label">Due Date</label>
+          <input class="input" type="date" id="taskDueDate" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-soft" id="cancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveBtn">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'lava_training_manager_task_tracker_html_v1';
+
+    const categories = [
+      'Training Operations & Curriculum',
+      'Team Leadership & Accountability',
+      'VA Performance & Retention',
+      'Cross-Department Alignment',
+      'Systems & Reporting',
+      'Specialized Training & Support'
+    ];
+
+    const statuses = ['To Do', 'In Progress', 'Done'];
+    const priorities = ['Low', 'Medium', 'High', 'Critical'];
+
+    const starterTasks = [
+      {
+        id: String(Date.now() + 1),
+        title: 'Update insurance workflow curriculum',
+        description: 'Review client workflow changes and align training materials with real VA processes.',
+        notes: 'Check AMS changes, carrier updates, and recent trainer feedback.',
+        category: 'Training Operations & Curriculum',
+        status: 'To Do',
+        priority: 'High',
+        dueDate: '',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: String(Date.now() + 2),
+        title: 'Coach trainer team this week',
+        description: 'Run 1:1 coaching sessions and review trainer quality and accountability.',
+        notes: 'Prepare talking points for consistency, performance gaps, and next action steps.',
+        category: 'Team Leadership & Accountability',
+        status: 'In Progress',
+        priority: 'Medium',
+        dueDate: '',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: String(Date.now() + 3),
+        title: 'Review at-risk VA performance',
+        description: 'Identify early risks after training and escalate concerns when needed.',
+        notes: 'Cross-check assessment results and client transition readiness.',
+        category: 'VA Performance & Retention',
+        status: 'To Do',
+        priority: 'Critical',
+        dueDate: '',
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    let tasks = [];
+    let editingId = null;
+
+    const els = {
+      statTotal: document.getElementById('statTotal'),
+      statProgress: document.getElementById('statProgress'),
+      statDone: document.getElementById('statDone'),
+      statOverdue: document.getElementById('statOverdue'),
+      statThreshold: document.getElementById('statThreshold'),
+      countTodo: document.getElementById('countTodo'),
+      countProgress: document.getElementById('countProgress'),
+      countDone: document.getElementById('countDone'),
+      todoList: document.getElementById('todoList'),
+      progressList: document.getElementById('progressList'),
+      doneList: document.getElementById('doneList'),
+      searchInput: document.getElementById('searchInput'),
+      statusFilter: document.getElementById('statusFilter'),
+      categoryFilter: document.getElementById('categoryFilter'),
+      modalBackdrop: document.getElementById('modalBackdrop'),
+      modalTitle: document.getElementById('modalTitle'),
+      taskTitle: document.getElementById('taskTitle'),
+      taskDescription: document.getElementById('taskDescription'),
+      taskNotes: document.getElementById('taskNotes'),
+      taskCategory: document.getElementById('taskCategory'),
+      taskPriority: document.getElementById('taskPriority'),
+      taskStatus: document.getElementById('taskStatus'),
+      taskDueDate: document.getElementById('taskDueDate'),
+      addTaskTop: document.getElementById('addTaskTop'),
+      fab: document.getElementById('fab'),
+      closeModal: document.getElementById('closeModal'),
+      cancelBtn: document.getElementById('cancelBtn'),
+      saveBtn: document.getElementById('saveBtn')
+    };
+
+    function loadTasks(){
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(saved){
+        try{ tasks = JSON.parse(saved) || []; } catch(e){ tasks = []; }
+      }
+      if(!Array.isArray(tasks) || !tasks.length){
+        tasks = starterTasks;
+        saveTasks();
+      }
+    }
+
+    function saveTasks(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function isOverdue(task){
+      if(!task.dueDate || task.status === 'Done') return false;
+      const due = new Date(task.dueDate + 'T23:59:59');
+      return due < new Date();
+    }
+
+    function ensureTaskMeta(task){
+      if(!task.createdAt) task.createdAt = new Date().toISOString();
+      return task;
+    }
+
+    function thresholdDeadline(task){
+      const base = new Date(task.createdAt || new Date().toISOString()).getTime();
+      return base + (24 * 60 * 60 * 1000);
+    }
+
+    function isThresholdReached(task){
+      if(task.status === 'Done') return false;
+      return Date.now() > thresholdDeadline(task);
+    }
+
+    function getThresholdText(task){
+      if(task.status === 'Done') return 'Completed before threshold tracking ended';
+      const diff = thresholdDeadline(task) - Date.now();
+      if(diff <= 0) return '24-hour threshold reached';
+      const totalMinutes = Math.floor(diff / 60000);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `24-hour window: ${hours}h ${minutes}m left`;
+    }
+
+    function esc(str=''){
+      return str
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function fillSelect(select, items, firstLabel){
+      select.innerHTML = '';
+      if(firstLabel){
+        const opt = document.createElement('option');
+        opt.value = 'All';
+        opt.textContent = firstLabel;
+        select.appendChild(opt);
+      }
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        select.appendChild(opt);
+      });
+    }
+
+    function priorityClass(priority){
+      return {
+        Low:'priority-low',
+        Medium:'priority-medium',
+        High:'priority-high',
+        Critical:'priority-critical'
+      }[priority] || 'priority-low';
+    }
+
+    function statusClass(status){
+      return {
+        'To Do':'status-todo',
+        'In Progress':'status-progress',
+        'Done':'status-done'
+      }[status] || 'status-todo';
+    }
+
+    function filteredTasks(){
+      const q = els.searchInput.value.trim().toLowerCase();
+      const status = els.statusFilter.value;
+      const category = els.categoryFilter.value;
+
+      return tasks.filter(task => {
+        const matchQ = !q ||
+          task.title.toLowerCase().includes(q) ||
+          task.description.toLowerCase().includes(q) ||
+          (task.notes || '').toLowerCase().includes(q) ||
+          task.category.toLowerCase().includes(q);
+
+        const matchStatus = status === 'All' || task.status === status;
+        const matchCategory = category === 'All' || task.category === category;
+        return matchQ && matchStatus && matchCategory;
+      });
+    }
+
+    function createTaskCard(task){
+      task = ensureTaskMeta(task);
+      const div = document.createElement('div');
+      div.className = 'task';
+
+      const otherStatuses = statuses.filter(s => s !== task.status)
+        .map(s => `<button class="move-btn" onclick="moveTask('${task.id}','${s}')">Move to ${s}</button>`)
+        .join('');
+
+      div.innerHTML = `
+        <div class="task-top">
+          <div>
+            <div class="task-title">${esc(task.title)}</div>
+            <div class="task-cat">${esc(task.category)}</div>
+          </div>
+          <div class="task-actions">
+            <button class="icon-btn" onclick="editTask('${task.id}')" title="Edit">✎</button>
+            <button class="icon-btn" onclick="deleteTask('${task.id}')" title="Delete">🗑</button>
+          </div>
+        </div>
+
+        <div class="task-desc">${esc(task.description || 'No description added.')}</div>
+
+        <div class="notes-box">
+          <div class="notes-title">📝 Notes</div>
+          <div class="notes-text">${esc(task.notes || 'No notes yet.')}</div>
+        </div>
+
+        <div class="badges">
+          <span class="badge ${priorityClass(task.priority)}">${esc(task.priority)}</span>
+          <span class="badge ${statusClass(task.status)}">${esc(task.status)}</span>
+          ${isOverdue(task) ? '<span class="badge overdue">Overdue</span>' : ''}
+          ${isThresholdReached(task) ? '<span class="badge overdue">24h Threshold Reached</span>' : '<span class="badge priority-medium">24h Active</span>'}
+        </div>
+
+        <div class="due">📅 ${task.dueDate ? esc(task.dueDate) : 'No due date'}</div>
+        <div class="threshold-line ${isThresholdReached(task) ? '' : 'threshold-ok'}">⏱ ${esc(getThresholdText(task))}</div>
+        <div class="move-row">${otherStatuses}</div>
+      `;
+
+      return div;
+    }
+
+    function render(){
+      tasks = tasks.map(ensureTaskMeta);
+      const list = filteredTasks();
+      const todo = list.filter(t => t.status === 'To Do');
+      const progress = list.filter(t => t.status === 'In Progress');
+      const done = list.filter(t => t.status === 'Done');
+
+      els.todoList.innerHTML = '';
+      els.progressList.innerHTML = '';
+      els.doneList.innerHTML = '';
+
+      if(!todo.length) els.todoList.innerHTML = '<div class="empty">No tasks here yet</div>';
+      if(!progress.length) els.progressList.innerHTML = '<div class="empty">No tasks here yet</div>';
+      if(!done.length) els.doneList.innerHTML = '<div class="empty">No tasks here yet</div>';
+
+      todo.forEach(task => els.todoList.appendChild(createTaskCard(task)));
+      progress.forEach(task => els.progressList.appendChild(createTaskCard(task)));
+      done.forEach(task => els.doneList.appendChild(createTaskCard(task)));
+
+      els.countTodo.textContent = `${todo.length} task${todo.length !== 1 ? 's' : ''}`;
+      els.countProgress.textContent = `${progress.length} task${progress.length !== 1 ? 's' : ''}`;
+      els.countDone.textContent = `${done.length} task${done.length !== 1 ? 's' : ''}`;
+
+      els.statTotal.textContent = tasks.length;
+      els.statProgress.textContent = tasks.filter(t => t.status === 'In Progress').length;
+      els.statDone.textContent = tasks.filter(t => t.status === 'Done').length;
+      els.statOverdue.textContent = tasks.filter(t => isOverdue(t)).length;
+      els.statThreshold.textContent = tasks.filter(t => isThresholdReached(t)).length;
+    }
+
+    function openModal(edit = false){
+      els.modalTitle.textContent = edit ? 'Edit Task' : 'Add Task';
+      els.modalBackdrop.classList.add('show');
+    }
+
+    function closeModal(){
+      els.modalBackdrop.classList.remove('show');
+    }
+
+    function clearForm(){
+      editingId = null;
+      els.taskTitle.value = '';
+      els.taskDescription.value = '';
+      els.taskNotes.value = '';
+      els.taskCategory.value = categories[0];
+      els.taskPriority.value = 'Medium';
+      els.taskStatus.value = 'To Do';
+      els.taskDueDate.value = '';
+    }
+
+    function openAdd(){
+      clearForm();
+      openModal(false);
+    }
+
+    window.editTask = function(id){
+      const task = tasks.find(t => t.id === id);
+      if(!task) return;
+      editingId = id;
+      els.taskTitle.value = task.title || '';
+      els.taskDescription.value = task.description || '';
+      els.taskNotes.value = task.notes || '';
+      els.taskCategory.value = task.category || categories[0];
+      els.taskPriority.value = task.priority || 'Medium';
+      els.taskStatus.value = task.status || 'To Do';
+      els.taskDueDate.value = task.dueDate || '';
+      openModal(true);
+    }
+
+    window.deleteTask = function(id){
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasks();
+      render();
+    }
+
+    window.moveTask = function(id, status){
+      tasks = tasks.map(t => t.id === id ? {...t, status} : t);
+      saveTasks();
+      render();
+    }
+
+    function saveCurrentTask(){
+      const title = els.taskTitle.value.trim();
+      if(!title){
+        alert('Please enter a task title.');
+        return;
+      }
+
+      const payload = {
+        title,
+        description: els.taskDescription.value.trim(),
+        notes: els.taskNotes.value.trim(),
+        category: els.taskCategory.value,
+        priority: els.taskPriority.value,
+        status: els.taskStatus.value,
+        dueDate: els.taskDueDate.value
+      };
+
+      if(editingId){
+        tasks = tasks.map(t => t.id === editingId ? {...t, ...payload} : t);
+      } else {
+        tasks.unshift({ id: String(Date.now()), ...payload, createdAt: new Date().toISOString() });
+      }
+
+      saveTasks();
+      render();
+      closeModal();
+      clearForm();
+    }
+
+    function setup(){
+      fillSelect(els.statusFilter, statuses, 'All Status');
+      fillSelect(els.categoryFilter, categories, 'All Category');
+      fillSelect(els.taskCategory, categories);
+      fillSelect(els.taskPriority, priorities);
+      fillSelect(els.taskStatus, statuses);
+
+      els.addTaskTop.addEventListener('click', openAdd);
+      els.fab.addEventListener('click', openAdd);
+      els.closeModal.addEventListener('click', closeModal);
+      els.cancelBtn.addEventListener('click', closeModal);
+      els.saveBtn.addEventListener('click', saveCurrentTask);
+      els.searchInput.addEventListener('input', render);
+      els.statusFilter.addEventListener('change', render);
+      els.categoryFilter.addEventListener('change', render);
+      els.modalBackdrop.addEventListener('click', (e) => {
+        if(e.target === els.modalBackdrop) closeModal();
+      });
+    }
+
+    loadTasks();
+    tasks = tasks.map(ensureTaskMeta);
+    saveTasks();
+    setup();
+    render();
+    setInterval(render, 60000);
+  </script>
+</body>
+</html>
